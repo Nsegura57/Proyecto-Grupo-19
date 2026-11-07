@@ -1,0 +1,27 @@
+{
+  "modelo": "A_bosque",
+  "variables_en_orden": [
+    "P2097",
+    "P2098",
+    "P2106",
+    "P2099S2",
+    "P2104",
+    "P2105S1",
+    "P2107S1"
+  ],
+  "categoricas": [
+    "P2097",
+    "P2098",
+    "P2106"
+  ],
+  "numericas": [
+    "P2099S2",
+    "P2104",
+    "P2105S1",
+    "P2107S1"
+  ],
+  "umbral": 0.55,
+  "clase_positiva": 1,
+  "interpretacion": "Probabilidad de clase con retrasos; prototipo académico, no aprobación crediticia",
+  "origen": "ELCO 2022 DANE; entrenamiento con separación por hogar"
+}
