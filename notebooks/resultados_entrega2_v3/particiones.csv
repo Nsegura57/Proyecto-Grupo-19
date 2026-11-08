@@ -1,0 +1,4 @@
+partición,créditos,hogares,retrasos,tasa_retrasos
+train,2808,2114,486,0.17307692307692307
+validación,613,453,94,0.1533442088091354
+prueba,592,453,95,0.16047297297297297

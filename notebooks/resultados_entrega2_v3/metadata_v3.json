@@ -1,0 +1,75 @@
+{
+  "algoritmo": "HistGradientBoostingClassifier",
+  "semilla": 42,
+  "fuente_csv": "ELCO_2022_creditos_ahorro_laboral_consolidado.csv",
+  "sha256_csv": "f1da82c6a0d6df962c8740d751ade21383ea890c2b97a078a052a8d6a3113eb4",
+  "n_creditos": 4013,
+  "n_hogares": 3020,
+  "criterio_seleccion": "max PR-AUC validacion; umbral max F1 validacion",
+  "separacion": "GroupShuffleSplit por DIRECTORIO, 70/15/15 aproximado",
+  "sklearn_version": "1.9.1",
+  "limitacion": "Clasificacion de estado observado, no prediccion prospectiva validada",
+  "A": {
+    "variables": [
+      "P2097",
+      "P2098",
+      "P2106",
+      "P2099S2",
+      "P2104",
+      "P2105S1",
+      "P2107S1"
+    ],
+    "umbral": 0.65,
+    "configuracion": {
+      "learning_rate": 0.05,
+      "max_iter": 150,
+      "max_leaf_nodes": 7,
+      "min_samples_leaf": 20,
+      "l2_regularization": 2.0
+    },
+    "archivo_modelo": "pipeline_gradient_boosting_A.joblib",
+    "metricas_test": {
+      "precision": 0.46236559139784944,
+      "recall": 0.45263157894736844,
+      "f1": 0.4574468085106383,
+      "pr_auc": 0.4652328125699682,
+      "roc_auc": 0.7415969501217834,
+      "balanced_accuracy": 0.6760139786084931
+    }
+  },
+  "B": {
+    "variables": [
+      "P2097",
+      "P2098",
+      "P2106",
+      "P2099S2",
+      "P2104",
+      "P2105S1",
+      "P2107S1",
+      "n_personas_ahorro",
+      "n_personas_con_ingresos",
+      "n_personas_que_ahorran",
+      "prop_que_ahorran_sobre_con_ingresos",
+      "n_personas_con_cuenta",
+      "n_personas_laboral",
+      "n_personas_trabajo_semana"
+    ],
+    "umbral": 0.6,
+    "configuracion": {
+      "learning_rate": 0.1,
+      "max_iter": 120,
+      "max_leaf_nodes": 15,
+      "min_samples_leaf": 30,
+      "l2_regularization": 1.0
+    },
+    "archivo_modelo": "pipeline_gradient_boosting_B.joblib",
+    "metricas_test": {
+      "precision": 0.3942307692307692,
+      "recall": 0.43157894736842106,
+      "f1": 0.4120603015075377,
+      "pr_auc": 0.4467965534129066,
+      "roc_auc": 0.746139997882029,
+      "balanced_accuracy": 0.6524091919940697
+    }
+  }
+}
