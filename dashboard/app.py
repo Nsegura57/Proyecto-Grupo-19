@@ -30,16 +30,16 @@ PERIODICIDAD = {1: "Diaria", 2: "Semanal", 3: "Quincenal", 4: "Mensual", 5: "Bim
                 7: "Semestral", 8: "Anual", 9: "Un solo pago", 10: "No hay periodicidad", 11: "Otra"}
 
 METRICAS = {
-    "Modelo 1 · línea base (C = 1)": {
+    "Modelo 1 · línea base C = 1": {
         "Recall (con retrasos)": (0.6421, 0.6842), "Precisión": (0.3035, 0.2632),
         "F1": (0.4122, 0.3801), "PR-AUC": (0.3768, 0.3873)},
-    "Modelo 1 · C = 0,1 (mejor en validación)": {
+    "Modelo 1 · Mejor Experimento C = 0,1": {
         "Recall (con retrasos)": (0.5368, 0.7053), "Precisión": (0.3228, 0.2627),
         "F1": (0.4032, 0.3829), "PR-AUC": (0.3772, 0.3833)},
 }
 
 REQUERIDAS = ["DIRECTORIO", "objetivo_atraso", "P2097", "P2098", "P2106", "P2099S2", "P2107S1",
-              "n_personas_que_ahorran", "n_personas_con_cuenta", "n_personas_laboral"]
+              "n_personas_que_ahorran", "n_personas_con_cuenta", "n_personas_trabajo_semana"]
 
 
 @st.cache_data
@@ -59,7 +59,7 @@ def cargar():
     d["Estado"] = np.where(d["objetivo_atraso"] == 1, "Con retrasos", "Al día")
     d["Ahorro"] = np.where(d["n_personas_que_ahorran"].fillna(0) > 0, "Con ahorro", "Sin ahorro")
     d["Cuentas"] = np.where(d["n_personas_con_cuenta"].fillna(0) > 0, "Con cuentas", "Sin cuentas")
-    d["Empleo"] = np.where(d["n_personas_laboral"].fillna(0) > 0, "Con empleo", "Sin empleo")
+    d["Empleo"] = np.where(d["n_personas_trabajo_semana"].fillna(0) > 0, "Con empleo", "Sin empleo")
     return d
 
 
@@ -86,11 +86,16 @@ st.markdown(f"<h2 style='color:{AZUL};margin-bottom:0'>Tablero: Cumplimiento cre
             "financiera de hogares</h2>", unsafe_allow_html=True)
 st.caption("Apoyo para el analista de riesgos: explora la población, consulta un crédito y revisa cuáles "
            "conviene priorizar para revisión. No aprueba ni niega créditos.")
+st.markdown("**Pregunta de negocio:** ¿cómo puede una herramienta supervisada, que incorpora características del "
+            "crédito, ahorro y empleo del hogar, apoyar la priorización de créditos para revisión por posibles "
+            "retrasos, y qué mejora aporta frente a usar solo variables crediticias?")
+st.caption("Flujo de uso:  1) explorar la población  →  2) consultar un crédito  →  3) comparar los modelos")
 
 HOGAR_OPC = {"Todos": None, "Con ahorro": ("Ahorro", "Con ahorro"), "Sin ahorro": ("Ahorro", "Sin ahorro"),
              "Con cuentas": ("Cuentas", "Con cuentas"), "Sin cuentas": ("Cuentas", "Sin cuentas"),
              "Con empleo": ("Empleo", "Con empleo"), "Sin empleo": ("Empleo", "Sin empleo")}
 
+st.subheader("1. Explorar la población")
 amin, amax = int(df["P2099S2"].min()), int(df["P2099S2"].max())
 c1, c2, c3, c4 = st.columns([1.3, 1.2, 1.2, 1])
 with c1:
@@ -132,7 +137,8 @@ def tasa(col):
 
 def barras(t, col, titulo, horizontal=False):
     if horizontal:
-        t = t.sort_values("tasa")
+        t = t.sort_values("tasa").copy()
+        t[col] = t[col] + " (n=" + t["n"].astype(str) + ")"
         fig = px.bar(t, x="tasa", y=col, orientation="h", custom_data=["n"], text_auto=".1f")
         hover = "%{y}<br>Tasa de retraso: %{x:.1f}%<br>Créditos: %{customdata[0]}<extra></extra>"
         fig.update_layout(xaxis_title="Tasa de retraso (%)", yaxis_title=None, height=120 + 28 * len(t))
@@ -171,22 +177,9 @@ with izq:
 
 # ───────────── Comparación de modelos y consulta por API ─────────────
 with der:
-    st.subheader("Comparación entre modelos")
-    cfg = st.selectbox("Configuración", list(METRICAS))
-    m = METRICAS[cfg]
-    tabla = pd.DataFrame([{"Métrica": k_, "Modelo A": f"{a_:.3f}", "Modelo B": f"{b_:.3f}",
-                           "Mejora B−A": f"{b_ - a_:+.3f}"} for k_, (a_, b_) in m.items()])
-    st.dataframe(tabla, hide_index=True)
-    dr = m["Recall (con retrasos)"][1] - m["Recall (con retrasos)"][0]
-    dp = m["Precisión"][1] - m["Precisión"][0]
-    cumple = dr >= 0.05 and dp >= -0.03
-    msg = (f"Meta del equipo (Δ recall ≥ +0,05 y Δ precisión ≥ −0,03): Δ recall = {dr:+.3f}, "
-           f"Δ precisión = {dp:+.3f}. " + ("Se cumple." if cumple else "No se cumple."))
-    (st.success if cumple else st.warning)(msg)
-    st.caption("Métricas en el conjunto de prueba, registradas en MLflow.")
-
-    st.subheader("Consulta por API")
-    with st.form("consulta"):
+    with der:
+     st.subheader("2. Consultar un crédito")
+     with st.form("consulta"):
         x1, x2 = st.columns(2)
         valor = x1.number_input("Valor inicial (pesos)", min_value=0, value=5_000_000, step=100_000)
         cuota = x2.number_input("Cuota (pesos)", min_value=0, value=200_000, step=10_000)
@@ -208,13 +201,17 @@ with der:
             st.write("**Probabilidad de retraso:** por calcular")
             st.write("**Prioridad de revisión:** por definir tras validación")
             st.info("La conexión con la API se habilitará en la siguiente etapa.")
-            with st.expander("Datos que se enviarán a la API"):
-                st.json(payload)
         else:
             st.write(r)
     else:
         st.write("Complete los datos del crédito y pulse **Consultar modelo**.")
     st.caption("Resultado orientativo: no equivale a aprobar ni rechazar un crédito.")
 
-st.caption("Fuente: DANE – ELCO 2022. Ejercicio académico; no es un instrumento de aprobación de crédito. "
-           "«Con retrasos» corresponde a P2110 = 2 (no están al día en el pago).")
+    st.subheader("3. Comparar los modelos")
+    cfg = st.selectbox("Configuración", list(METRICAS))
+    m = METRICAS[cfg]
+    tabla = pd.DataFrame([{"Métrica": k_, "Modelo A": f"{a_:.3f}", "Modelo B": f"{b_:.3f}",
+                           "Mejora B−A": f"{b_ - a_:+.3f}"} for k_, (a_, b_) in m.items()])
+    st.dataframe(tabla, hide_index=True)
+
+st.caption("Fuente: DANE – ELCO 2022. Ejercicio académico; no es un instrumento de aprobación de crédito. ")
