@@ -1,0 +1,54 @@
+# Configuración del paquete del modelo final (Gradient Boosting, conjunto A de variables)
+package_name: modelo-atrasos-credito
+
+# Datos
+train_data_file: elco_creditos_modelo.csv
+pipeline_save_file: modelo-atrasos-output
+card_save_file: modelo-atrasos-card
+
+# Variable objetivo (1 = crédito con retrasos) y grupo (hogar) para la partición
+target: objetivo_atraso
+group: DIRECTORIO
+
+# Variables del modelo A (características del crédito)
+features:
+  - P2097
+  - P2098
+  - P2106
+  - P2099S2
+  - P2104
+  - P2105S1
+  - P2107S1
+
+categorical_vars:
+  - P2097
+  - P2098
+  - P2106
+
+numeric_vars:
+  - P2099S2
+  - P2104
+  - P2105S1
+  - P2107S1
+
+# Código que ELCO usa para "plazo sin respuesta"
+no_term_code: 9999
+
+# Partición por hogar 70/15/15 (misma del resto del grupo)
+random_state: 42
+test_size_first: 0.30
+test_size_second: 0.50
+
+# Hiperparámetros: configuración 11 elegida por PR-AUC de validación
+learning_rate: 0.05
+max_iter: 300
+max_leaf_nodes: 7
+min_samples_leaf: 30
+l2_regularization: 2.0
+
+# Umbral de clasificación elegido en validación (máximo F1)
+threshold: 0.675
+
+# Prioridad de revisión según la posición del crédito en la población de referencia
+priority_top_high: 10
+priority_top_medium: 30

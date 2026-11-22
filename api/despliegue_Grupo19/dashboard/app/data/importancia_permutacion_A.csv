@@ -1,0 +1,8 @@
+variable,descripcion,importancia
+P2099S2,Año de inicio del crédito,0.2228
+P2104,Valor inicial del crédito,0.0291
+P2107S1,Plazo (meses),0.029
+P2105S1,Valor de la cuota,0.0208
+P2106,Periodicidad de pago,0.0115
+P2097,Entidad acreedora,-0.009
+P2098,Destino del crédito,-0.0111

@@ -1,0 +1,7 @@
+# Versiones fijadas: scikit-learn 1.6.1 reproduce exactamente las métricas reportadas por el equipo.
+numpy>=2.0.0,<2.3.0
+pandas>=2.2.3,<2.4.0
+scikit-learn==1.6.1
+joblib>=1.4.0,<2.0.0
+pydantic>=2.6.0,<3.0.0
+strictyaml>=1.7.0,<2.0.0

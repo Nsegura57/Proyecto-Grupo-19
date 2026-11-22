@@ -1,0 +1,12 @@
+include *.txt
+include *.md
+include model/datasets/*.csv
+include model/trained/*.pkl
+include model/trained/*.json
+include model/VERSION
+include model/config.yml
+include requirements/requirements.txt
+include requirements/test_requirements.txt
+exclude *.log
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
